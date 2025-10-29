@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Agenda Pádua - Frontend</title>
+<style>
+  :root{
+    --bg:#f6f8fb;
+    --panel:#fff;
+    --accent:#2b8ef6;
+    --muted:#6b7280;
+    --shadow: 0 4px 12px rgba(15,23,42,0.06);
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  body{ margin:20px; background:var(--bg); color:#0f172a; }
+  .container{ max-width:1100px; margin:0 auto; display:flex; gap:18px; }
+  .left, .right { background:var(--panel); box-shadow:var(--shadow); padding:16px; border-radius:8px; }
+  .left{ width:260px; }
+  .right{ flex:1; }
+  /* calendar */
+  .month{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .month select, .month button{ padding:6px 8px; border-radius:6px; border:1px solid #e6e9ef; background:#fff; }
+  .calendar{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .dow{ font-size:12px; text-align:center; color:var(--muted); }
+  .day{ height:36px; display:flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; }
+  .day:hover{ background:#eef6ff; }
+  .day.inactive{ color:#cbd5e1; cursor:default; background:transparent; }
+  .day.selected{ background:var(--accent); color:#fff; }
+  .day.has-event::after{ content:""; display:block; width:6px; height:6px; background:#fb7185; border-radius:50%; margin-top:4px; }
+  /* form */
+  .field{ margin-bottom:10px; display:flex; gap:8px; align-items:center; }
+  .field label{ width:110px; font-size:14px; color:var(--muted); }
+  .field input[type="text"], .field input[type="time"], .field select, .field textarea{ flex:1; padding:8px 10px; border:1px solid #e6e9ef; border-radius:6px; background:#fff; }
+  textarea{ min-height:90px; resize:vertical; }
+  .actions{ margin-top:12px; display:flex; gap:8px; }
+  button.primary{ background:var(--accent); color:#fff; padding:8px 12px; border:none; border-radius:6px; cursor:pointer; }
+  button.secondary{ background:#fff; border:1px solid #e6e9ef; padding:8px 12px; border-radius:6px; cursor:pointer; }
+  .events-list{ margin-top:12px; border-top:1px dashed #eef2ff; padding-top:12px; }
+  .event-item{ padding:8px; border-radius:6px; display:flex; justify-content:space-between; gap:8px; align-items:center; border:1px solid transparent; }
+  .event-item:hover{ background:#fbfbfe; border-color:#eef2ff; }
+  .small{ font-size:13px; color:var(--muted); }
+  .flexcol{ display:flex; flex-direction:column; gap:6px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="left">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <strong>Buscar Participante:</strong>
+      <input id="searchParticipant" placeholder="Pesquisar..." style="padding:6px;border-radius:6px;border:1px solid #e6e9ef" />
+    </div>
+
+    <div class="month">
+      <select id="monthSelect"></select>
+      <select id="yearSelect"></select>
+      <button id="gotoToday">Hoje</button>
+    </div>
+
+    <div class="calendar" id="calendar">
+      <!-- dias gerados por JS -->
+    </div>
+
+    <div style="margin-top:12px;">
+      <label class="small">Filtro:</label>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <select id="filterResponsible"><option value="">Todos</option></select>
+        <select id="filterType"><option value="">Todos tipos</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 id="formTitle">Agenda Pádua » <span id="selectedDateHuman">—</span></h2>
+      <div>
+        <button class="secondary" id="btnPrev">◀</button>
+        <button class="secondary" id="btnNext">▶</button>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;">
+      <div class="field">
+        <label>Início</label>
+        <input type="date" id="dtInicio" />
+        <label style="width:70px; text-align:right;">Término</label>
+        <input type="date" id="dtFim" />
+      </div>
+
+      <div class="field">
+        <label>Tipo de evento</label>
+        <select id="tp_evento">
+          <option value="ACOMPANHAMENTO">ACOMPANHAMENTO</option>
+          <option value="REUNIAO">REUNIÃO</option>
+          <option value="CONSULTA">CONSULTA</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Responsável</label>
+        <select id="responsibleSelect"><option>Carregando...</option></select>
+      </div>
+
+      <div class="field">
+        <label>Local</label>
+        <select id="locationSelect">
+          <option value="Sala - 1">Sala - 1</option>
+          <option value="Sala - 2">Sala - 2</option>
+          <option value="Online">Online</option>
+        </select>
+      </div>
+
+      <div class="field" style="align-items:flex-start;">
+        <label>Participantes</label>
+        <textarea id="descricao" placeholder="Nome (telefone)"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Receber aviso</label>
+        <input type="checkbox" id="receiveNotice" />
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="btnSave">Salvar</button>
+        <button class="secondary" id="btnNew">Novo</button>
+        <button class="secondary" id="btnDelete" style="display:none;background:#fee2e2;border-color:#fecaca;color:#711; ">Excluir</button>
+      </div>
+
+      <div class="events-list" id="eventsList">
+        <!-- Lista de eventos do dia -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  Frontend mínimo para CRUD de Evento/Usuario em HTML + JS puro.
+
+  Ajustes importantes:
+  - Altere API_BASE se seu backend estiver em outra URL/porta.
+  - Mapeie os caminhos conforme seu backend Spring (ex.: "/api/usuarios", "/api/eventos").
+  - Endpoint esperado:
+      GET  /api/usuarios               -> lista de usuários (para dropdown responsável)
+      GET  /api/eventos?date=YYYY-MM-DD -> eventos de uma data
+      POST /api/eventos                -> cria evento (body JSON)
+      PUT  /api/eventos/{id}           -> atualiza evento (body JSON)
+      DELETE /api/eventos/{id}         -> deleta evento
+    Exemplo payload evento:
+      {
+        "id": 123,                 // omit on POST
+        "date": "2024-05-28",
+        "dtInicio": "09:00",
+        "dtFim": "09:30",
+        "type": "ACOMPANHAMENTO",
+        "responsibleId": 5,
+        "location": "Sala - 1",
+        "descricao": "Fulano (9999-9999)",
+        "receiveNotice": true
+      }
+*/
+
+const API_BASE = 'http://localhost:8080'; // <- ajuste aqui
+
+// --------- util de formatação ----------
+function yyyy_mm_dd(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function humanDate(date){
+  return date.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+// --------- estado ----------
+let currentDate = new Date();
+let users = []; // carregado do backend
+let eventsOfDay = []; // eventos do dia
+let editingEvent = null; // objeto do evento sendo editado
+
+// --------- inicialização ----------
+document.addEventListener('DOMContentLoaded', async () => {
+  fillMonthYearSelectors();
+  await loadUsers();
+  renderCalendar();
+  selectDate(currentDate);
+  setupHandlers();
+  populateFilters();
+});
+
+function setupHandlers(){
+  document.getElementById('gotoToday').addEventListener('click', ()=>{ currentDate = new Date(); renderCalendar(); selectDate(currentDate); });
+  document.getElementById('monthSelect').addEventListener('change', (e)=> { currentDate.setMonth(Number(e.target.value)); renderCalendar(); });
+  document.getElementById('yearSelect').addEventListener('change', (e)=> { currentDate.setFullYear(Number(e.target.value)); renderCalendar(); });
+  document.getElementById('btnPrev').addEventListener('click', ()=>{ currentDate.setDate(currentDate.getDate()-1); renderCalendar(); selectDate(currentDate); });
+  document.getElementById('btnNext').addEventListener('click', ()=>{ currentDate.setDate(currentDate.getDate()+1); renderCalendar(); selectDate(currentDate); });
+  document.getElementById('btnSave').addEventListener('click', saveEvent);
+  document.getElementById('btnNew').addEventListener('click', () => { clearForm(); editingEvent = null; document.getElementById('btnDelete').style.display='none'; });
+  document.getElementById('btnDelete').addEventListener('click', deleteEvent);
+  document.getElementById('searchParticipant').addEventListener('input', filterEventsByParticipant);
+  document.getElementById('filterResponsible').addEventListener('change', renderEventsList);
+  document.getElementById('filterType').addEventListener('change', renderEventsList);
+}
+
+// --------- carregar usuarios (responsáveis) ----------
+async function loadUsers(){
+  const el = document.getElementById('responsibleSelect');
+  const filterEl = document.getElementById('filterResponsible');
+  el.innerHTML = '<option>Carregando...</option>';
+  try{
+    const res = await fetch(`${API_BASE}/pacientes`);
+    if(!res.ok) throw new Error('Erro ao buscar usuários');
+    users = await res.json();
+    if(!Array.isArray(users)) users = [];
+  }catch(err){
+    console.warn('Falha ao buscar usuários, usando lista vazia', err);
+    users = [];
+  }
+  // popular selects
+  el.innerHTML = '<option value="">-- selecione --</option>';
+  filterEl.innerHTML = '<option value="">Todos</option>';
+  users.forEach(u=>{
+    const opt = document.createElement('option');
+    opt.value = u.id ?? u.codigo ?? u.cd ?? '';
+    opt.textContent = u.nome ?? u.username ?? u.fullName ?? (`Usuário ${opt.value}`);
+    el.appendChild(opt);
+
+    const opt2 = opt.cloneNode(true);
+    filterEl.appendChild(opt2);
+  });
+}
+
+// --------- calendário ----------
+function fillMonthYearSelectors(){
+  const monthSelect = document.getElementById('monthSelect');
+  const yearSelect = document.getElementById('yearSelect');
+  const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  monthSelect.innerHTML = months.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  const yearNow = new Date().getFullYear();
+  const years = [];
+  for(let y = yearNow-3; y <= yearNow+3; y++) years.push(y);
+  yearSelect.innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  monthSelect.value = new Date().getMonth();
+  yearSelect.value = new Date().getFullYear();
+}
+
+async function renderCalendar(){
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+  // dias da semana
+  const dows = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  dows.forEach(d=>{ const el = document.createElement('div'); el.className='dow'; el.textContent=d; cal.appendChild(el); });
+
+  // set current displayed month from selectors
+  const month = Number(document.getElementById('monthSelect').value);
+  const year = Number(document.getElementById('yearSelect').value);
+  const first = new Date(year, month, 1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
+  // previous month's trailing cells
+  let dayIndex=0;
+  for(let i=0;i<startDay;i++){
+    const el = document.createElement('div');
+    el.className='day inactive';
+    el.textContent = '';
+    cal.appendChild(el);
+    dayIndex++;
+  }
+
+  // create days
+  for(let d=1; d<=daysInMonth; d++){
+    const cell = document.createElement('div');
+    cell.className='day';
+    const dateObj = new Date(year, month, d);
+    const dateStr = yyyy_mm_dd(dateObj);
+    cell.textContent = d;
+    cell.dataset.date = dateStr;
+    cell.addEventListener('click', ()=> selectDate(dateObj));
+    cal.appendChild(cell);
+    dayIndex++;
+  }
+
+  // fill remaining to complete grid (optional)
+  while(dayIndex % 7 !== 0){
+    const el = document.createElement('div');
+    el.className='day inactive';
+    el.textContent = '';
+    cal.appendChild(el);
+    dayIndex++;
+  }
+
+  // mark selected day
+  // also fetch events for whole month to indicate days with events
+  await markDaysWithEvents(year, month);
+  // ensure selected date highlight
+  document.querySelectorAll('.day').forEach(d=>{
+    if(d.dataset.date === yyyy_mm_dd(currentDate)){
+      d.classList.add('selected');
+    } else d.classList.remove('selected');
+  });
+}
+
+async function markDaysWithEvents(year, month) {
+	  const msg = document.getElementById("message");
+	  let events = [];
+
+	  try {
+	    // ajuste conforme o endpoint real:
+	    const res = await fetch(`${API_BASE}/eventos`);
+	    if (!res.ok) throw new Error("Erro ao buscar eventos");
+	    events = await res.json();
+	  } catch (err) {
+	    console.error("Erro ao carregar eventos:", err);
+	    if (msg) {
+	      msg.style.color = "red";
+	      msg.textContent = "Erro ao carregar eventos.";
+	    }
+	    return;
+	  }
+
+	  // Remove marcações antigas
+	  document.querySelectorAll(".has-event").forEach(el => el.classList.remove("has-event"));
+
+	  // Itera sobre os eventos e marca os dias
+	  events.forEach(event => {
+	    const start = new Date(event.dtInicio);
+	    const end = new Date(event.dtFim);
+
+	    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+	      // Formata como yyyy-mm-dd
+	      const dateStr = d.toISOString().split("T")[0];
+	      // Encontra a célula do calendário com esse dia
+	      const cell = document.querySelector(`[data-date='${dateStr}']`);
+	      if (cell) {
+	        cell.classList.add("has-event");
+	        // opcional: adicionar tooltip com o nome do evento
+	        cell.title = event.nmEvento;
+	      }
+	    }
+	  });
+	}
+
+
+// --------- seleção de data ----------
+async function selectDate(dateObj){
+  currentDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+  document.getElementById('selectedDateHuman').textContent = humanDate(currentDate);
+  // set time defaults
+  const hh = new Date().getHours();
+  document.getElementById('dtInicio').value = '09:00';
+  document.getElementById('dtFim').value = '09:30';
+  // refresh calendar highlight
+  document.querySelectorAll('.day').forEach(d=>{
+    if(d.dataset.date === yyyy_mm_dd(currentDate)) d.classList.add('selected');
+    else d.classList.remove('selected');
+  });
+  // load events for day
+  await loadEventsForDate(currentDate);
+  renderEventsList();
+  clearForm();
+}
+
+// --------- carregar eventos do dia ----------
+async function loadEventsForDate(dateObj){
+  const dateStr = yyyy_mm_dd(dateObj);
+  try{
+    const res = await fetch(`${API_BASE}/eventos?date=${dateStr}`);
+    if(!res.ok) throw new Error('Erro ao buscar eventos');
+    eventsOfDay = await res.json();
+    if(!Array.isArray(eventsOfDay)) eventsOfDay = [];
+  }catch(err){
+    console.warn('Erro ao buscar eventos do dia', err);
+    eventsOfDay = [];
+  }
+}
+
+// --------- render eventos list ----------
+function renderEventsList(){
+  const container = document.getElementById('eventsList');
+  container.innerHTML = '';
+  const search = document.getElementById('searchParticipant').value.toLowerCase();
+  const filterResp = document.getElementById('filterResponsible').value;
+  const filterType = document.getElementById('filterType').value;
+
+  const list = (eventsOfDay || []).filter(ev=>{
+    if(search){
+      if(!(ev.descricao && ev.descricao.toLowerCase().includes(search))) return false;
+    }
+    if(filterResp && String((ev.responsibleId ?? ev.responsavelId ?? '')) !== filterResp) return false;
+    if(filterType && (ev.type ?? ev.tipo ?? '') !== filterType) return false;
+    return true;
+  });
+
+  if(list.length === 0){
+    container.innerHTML = '<div class="small">Nenhum evento neste dia.</div>';
+    return;
+  }
+
+  list.forEach(ev=>{
+    const item = document.createElement('div');
+    item.className = 'event-item';
+    const left = document.createElement('div');
+    left.className = 'flexcol';
+    const title = document.createElement('div');
+    title.innerHTML = `<strong>${ev.tp_evento || ev.tp_evento || 'Evento'}</strong> — <span class="small">${ev.dtInicio || ev.horaInicio || ''} - ${ev.descricao || ''}</span>`;
+    const sub = document.createElement('div');
+    const respName = findUserNameById(ev.responsibleId ?? ev.responsavelId);
+    sub.innerHTML = `<span class="small">${respName} · ${ev.location || ev.local || ''}</span>`;
+    left.appendChild(title);
+    left.appendChild(sub);
+
+    const right = document.createElement('div');
+    right.style.display = 'flex';
+    right.style.gap = '8px';
+    const btnEdit = document.createElement('button');
+    btnEdit.className = 'secondary';
+    btnEdit.textContent = 'Editar';
+    btnEdit.addEventListener('click', ()=> loadEventIntoForm(ev));
+    const btnDel = document.createElement('button');
+    btnDel.className = 'secondary';
+    btnDel.textContent = 'Excluir';
+    btnDel.style.background='#fff3f2';
+    btnDel.addEventListener('click', ()=> { if(confirm('Confirma exclusão?')) executeDelete(ev.id || ev._id || ev.codigo); });
+    right.appendChild(btnEdit);
+    right.appendChild(btnDel);
+
+    item.appendChild(left);
+    item.appendChild(right);
+    container.appendChild(item);
+  });
+}
+
+function findUserNameById(id){
+  const u = users.find(x => String(x.id ?? x.codigo ?? x.cd ?? '') === String(id));
+  return u ? (u.nome ?? u.fullName ?? u.username) : '—';
+}
+
+function filterEventsByParticipant(){
+  renderEventsList();
+}
+
+// --------- carregar um evento para edição ----------
+function loadEventIntoForm(ev){
+  editingEvent = ev;
+  document.getElementById('dtInicio').value = ev.dtInicio || ev.horaInicio || '';
+  document.getElementById('dtFim').value = ev.dtFim || ev.horaFim || '';
+  document.getElementById('tp_evento').value = ev.type || ev.tipo || 'ACOMPANHAMENTO';
+  document.getElementById('responsibleSelect').value = ev.responsibleId ?? ev.responsavelId ?? '';
+  document.getElementById('locationSelect').value = ev.location || ev.local || '';
+  document.getElementById('descricao').value = ev.descricao || ev.participantes || '';
+  document.getElementById('receiveNotice').checked = !!(ev.receiveNotice || ev.receberAviso);
+  document.getElementById('btnDelete').style.display='inline-block';
+  document.getElementById('formTitle').scrollIntoView({behavior:'smooth'});
+}
+
+// --------- limpar formulário ----------
+function clearForm(){
+  editingEvent = null;
+  document.getElementById('dtInicio').value = '';
+  document.getElementById('dtFim').value = '';
+  document.getElementById('tp_evento').value = 'ACOMPANHAMENTO';
+  document.getElementById('responsibleSelect').value = '';
+  document.getElementById('locationSelect').value = 'Sala - 1';
+  document.getElementById('descricao').value = '';
+  document.getElementById('receiveNotice').checked = false;
+  document.getElementById('btnDelete').style.display='none';
+}
+
+// --------- salvar (POST ou PUT) ----------
+async function saveEvent() {
+  //const nome = document.getElementById('nmEvento').value.trim();
+  const dtInicio = document.getElementById('dtInicio').value;
+  const dtFim = document.getElementById('dtFim').value;
+  const descricao = document.getElementById('descricao').value.trim();
+  const tp_evento = document.getElementById('tp_evento').value;
+
+  // Validação básica
+  if (!dtInicio || !dtFim) {
+    alert("Por favor, preencha o nome e as datas do evento.");
+    return;
+  }
+
+  const payload = {
+    dtInicio: dtInicio,
+    dtFim: dtFim,
+    descricao: descricao,
+    tp_evento: tp_evento
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/eventos/criar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const txt = await res.text().catch(() => null);
+      throw new Error(`HTTP ${res.status} ${txt || ''}`);
+    }
+
+    alert('✅ Evento criado com sucesso!');
+    // Atualiza o calendário e lista
+    await loadEventsForDate(currentDate);
+    renderEventsList();
+    renderCalendar();
+    clearForm();
+  } catch (err) {
+    console.error('Erro ao salvar evento:', err);
+    alert('Erro ao salvar evento. Veja o console.');
+  }
+}
+
+
+// --------- exclusão (botão da lista chama executeDelete)
+async function executeDelete(id){
+  if(!id) return alert('ID do evento não informado');
+  try{
+    const res = await fetch(`${API_BASE}/eventos/deletar/${id}`, { method: 'DELETE' });
+    if(!res.ok) throw new Error('erro delete');
+    alert('Evento excluído');
+    await loadEventsForDate(currentDate);
+    renderEventsList();
+    renderCalendar();
+    clearForm();
+  }catch(err){
+    console.error('Erro ao excluir', err);
+    alert('Erro ao excluir evento. Veja console.');
+  }
+}
+
+// botão excluir do formulário (quando em edição)
+function deleteEvent(){
+  if(!editingEvent) return;
+  const id = editingEvent.id ?? editingEvent._id ?? editingEvent.codigo;
+  if(!confirm('Confirma exclusão do evento selecionado?')) return;
+  executeDelete(id);
+}
+
+// --------- populate filtro tipos (pode ser dinâmico) ----------
+function populateFilters(){
+  const types = ['ACOMPANHAMENTO','REUNIAO','CONSULTA'];
+  const tfs = document.getElementById('filterType');
+  tfs.innerHTML = '<option value="">Todos tipos</option>' + types.map(t=>`<option value="${t}">${t}</option>`).join('');
+}
+
+</script>
+</body>
+</html>
