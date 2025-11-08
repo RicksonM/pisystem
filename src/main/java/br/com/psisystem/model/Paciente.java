@@ -15,6 +15,12 @@ public class Paciente {
 	private String dt_nascimento;
 	private String nr_telefone;
 	private String ds_email;
+	private String tp_sexo;
+	private String nr_cpf;
+	private String ds_estadoCivil;
+	private Endereco endereco;
+	private String observacoes_medicas;
+	private String tp_pagamento;
 	
 	public Paciente() {
 		super();

@@ -13,7 +13,7 @@
     --shadow: 0 4px 12px rgba(15,23,42,0.06);
     font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   }
-  body{ margin:20px; background:var(--bg); color:#0f172a; }
+  body{ margin:20px; background:var(--bg); color:#7d6bb3; }
   .container{ max-width:1100px; margin:0 auto; display:flex; gap:18px; }
   .left, .right { background:var(--panel); box-shadow:var(--shadow); padding:16px; border-radius:8px; }
   .left{ width:260px; }
@@ -41,10 +41,91 @@
   .event-item:hover{ background:#fbfbfe; border-color:#eef2ff; }
   .small{ font-size:13px; color:var(--muted); }
   .flexcol{ display:flex; flex-direction:column; gap:6px; }
+
+  /* ===== MENU LATERAL ===== */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 250px;
+      background-color: #fafafa;
+      color: black;
+      padding-top: 60px;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 15px 25px;
+      color: white;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .sidebar a:hover {
+      background-color: #34495e;
+    }
+
+    /* ===== BOTÃO HAMBÚRGUER ===== */
+    .menu-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 25px;
+      background: none;
+      border: none;
+      color: #2c3e50;
+      cursor: pointer;
+      z-index: 1100;
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+      width: 100%;
+    }
+
+    .collapsed .content {
+      margin-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .content {
+        margin-left: 0;
+      }
+    }
+
 </style>
 </head>
 <body>
+  <!-- Botão Hambúrguer -->
+  <button class="menu-btn" id="menu-btn">☰</button>
 
+  <!-- Menu lateral -->
+  <nav class="sidebar hidden" id="sidebar">
+    <a href="index.html">🏠 Início</a>
+    <a href="fichaCadastral.html">📄 Página 1</a>
+    <a href="pagina2.html">📄 Página 2</a>
+    <a href="#">⚙️ Configurações</a>
+  </nav>
+
+
+  
 <div class="container">
   <div class="left">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -73,7 +154,7 @@
 
   <div class="right">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 id="formTitle">Agenda Pádua » <span id="selectedDateHuman">—</span></h2>
+      <h2 id="formTitle">Agenda Pádua          <span id="selectedDateHuman">—</span></h2>
       <div>
         <button class="secondary" id="btnPrev">◀</button>
         <button class="secondary" id="btnNext">▶</button>
@@ -82,10 +163,10 @@
 
     <div style="margin-top:8px;">
       <div class="field">
-        <label>Início</label>
+       <!-- <label>Início</label>
         <input type="date" id="dtInicio" />
         <label style="width:70px; text-align:right;">Término</label>
-        <input type="date" id="dtFim" />
+        <input type="date" id="dtFim" />-->
       </div>
 
       <div class="field">
@@ -135,6 +216,18 @@
 </div>
 
 <script>
+
+
+  const menuBtn = document.getElementById('menu-btn');
+  const sidebar = document.getElementById('sidebar');
+  const content = document.getElementById('content');
+
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('hidden');
+    sidebar.classList.toggle('show');
+    content.classList.toggle('collapsed');
+  });
+
 /*
   Frontend mínimo para CRUD de Evento/Usuario em HTML + JS puro.
 

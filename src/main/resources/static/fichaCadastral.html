@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+ 
+  <title>Ficha de Anamnese - Claudiana Psicologia</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      background: #fff;
+      margin: 30px auto;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    header {
+      text-align: center;
+      border-bottom: 3px solid #d2c1f0;
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+    }
+
+    header h1 {
+      color: #7d6bb3;
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    header h2 {
+      font-size: 14px;
+      color: #a7a7a7;
+      margin: 0;
+    }
+
+    .tag {
+      position: absolute;
+      right: calc(50% - 340px);
+      background: #d2c1f0;
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    h3 {
+      background-color: #f5f1fb;
+      color: #7d6bb3;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 15px;
+      margin-top: 25px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .col-50 { flex: 1 1 48%; }
+    .col-33 { flex: 1 1 30%; }
+    .col-100 { flex: 1 1 100%; }
+
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+    }
+
+    /* ===== MENU LATERAL ===== */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 250px;
+      background-color: #fafafa;
+      color: black;
+      padding-top: 60px;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 15px 25px;
+      color: white;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .sidebar a:hover {
+      background-color: #34495e;
+    }
+
+    /* ===== BOTÃO HAMBÚRGUER ===== */
+    .menu-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 25px;
+      background: none;
+      border: none;
+      color: #2c3e50;
+      cursor: pointer;
+      z-index: 1100;
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+      width: 100%;
+    }
+
+    .collapsed .content {
+      margin-left: 0;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+ <!-- Botão Hambúrguer -->
+  <button class="menu-btn" id="menu-btn">☰</button>
+
+  <!-- Menu lateral -->
+  <nav class="sidebar hidden" id="sidebar">
+    <a href="index.html">🏠 Início</a>
+    <a href="fichaCadastral.html">📄 Página 1</a>
+    <a href="pagina2.html">📄 Página 2</a>
+    <a href="#">⚙️ Configurações</a>
+  </nav>
+
+  <div class="container">
+    <div class="tag">Ficha de Anamnese</div>
+
+    <header>
+      <h1>Claudiana</h1>
+      <h2>Psicóloga</h2>
+    </header>
+
+    <h3>Identificação Pessoal</h3>
+    <div class="field-group">
+      <div class="col-100">
+        <label>Nome completo:</label>
+        <input type="text">
+      </div>
+      <div class="col-50">
+        <label>Data de nascimento:</label>
+        <input type="date">
+      </div>
+      <div class="col-25">
+        <label>Sexo:</label>
+        <input type="text">
+      </div>
+      <div class="col-25">
+        <label>Idade:</label>
+        <input type="number" min="0">
+      </div>
+      <div class="col-33">
+        <label>Endereço:</label>
+        <input type="text">
+      </div>
+      <div class="col-33">
+        <label>Religião:</label>
+        <input type="text">
+      </div>
+      <div class="col-33">
+        <label>Escolaridade:</label>
+        <input type="text">
+      </div>
+      <div class="col-50">
+        <label>Telefone:</label>
+        <input type="tel">
+      </div>
+      <div class="col-50">
+        <label>E-mail:</label>
+        <input type="email">
+      </div>
+    </div>
+
+    <h3>Identificação dos Pais</h3>
+    <div class="field-group">
+      <div class="col-50">
+        <label>Nome do pai:</label>
+        <input type="text">
+      </div>
+      <div class="col-50">
+        <label>Profissão:</label>
+        <input type="text">
+      </div>
+      <div class="col-50">
+        <label>Nome da mãe:</label>
+        <input type="text">
+      </div>
+      <div class="col-50">
+        <label>Profissão:</label>
+        <input type="text">
+      </div>
+      <div class="col-100">
+        <label>Endereço:</label>
+        <input type="text">
+      </div>
+    </div>
+
+    <h3>Queixa Principal</h3>
+    <div class="field-group">
+      <div class="col-100">
+        <label>Centro da queixa:</label>
+        <textarea></textarea>
+      </div>
+    </div>
+
+    <h3>Evolução da Queixa</h3>
+    <div class="field-group">
+      <div class="col-100">
+        <label>Foi repentina ou gradual?</label>
+        <textarea></textarea>
+      </div>
+      <div class="col-100">
+        <label>Sintomas:</label>
+        <textarea></textarea>
+      </div>
+    </div>
+  </div>
+<script>
+    const menuBtn = document.getElementById('menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('show');
+      content.classList.toggle('collapsed');
+    });
+</script>
+</body>
+</html>
