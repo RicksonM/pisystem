@@ -168,6 +168,32 @@
         margin-left: 0;
       }
     }
+    
+    /* Botão Salvar */
+	#btnSalvar {
+	  width: 100%;
+	  background: #7d6bb3;
+	  color: #fff;
+	  padding: 12px 20px;
+	  border: none;
+	  border-radius: 8px;
+	  font-size: 15px;
+	  font-weight: bold;
+	  cursor: pointer;
+	  transition: background 0.2s ease, transform 0.1s ease;
+	  margin-top: 20px;
+	  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+	}
+	
+	#btnSalvar:hover {
+	  background: #6a5a99;
+	}
+	
+	#btnSalvar:active {
+	  transform: scale(0.98);
+	}
+    
+    
   </style>
 </head>
 <body>
@@ -178,9 +204,7 @@
   <!-- Menu lateral -->
   <nav class="sidebar hidden" id="sidebar">
     <a href="index.html">🏠 Início</a>
-    <a href="fichaCadastral.html">📄 Página 1</a>
-    <a href="pagina2.html">📄 Página 2</a>
-    <a href="#">⚙️ Configurações</a>
+    <a href="fichaCadastral.html">📄 Ficha Cadastral</a>
   </nav>
 
   <div class="container">
@@ -192,89 +216,116 @@
     </header>
 
     <h3>Identificação Pessoal</h3>
-    <div class="field-group">
+  <div class="field-group">
+
       <div class="col-100">
         <label>Nome completo:</label>
-        <input type="text">
+        <input type="text" name="ds_nome">
       </div>
+
       <div class="col-50">
         <label>Data de nascimento:</label>
-        <input type="date">
+        <input type="date" name="dt_nascimento">
       </div>
+
       <div class="col-25">
         <label>Sexo:</label>
-        <input type="text">
+        <input type="text" name="tp_sexo">
       </div>
+
       <div class="col-25">
         <label>Idade:</label>
-        <input type="number" min="0">
+        <input type="number" name="nr_idade" min="0">
       </div>
+
       <div class="col-33">
         <label>Endereço:</label>
-        <input type="text">
+        <input type="text" name="ds_endereco">
       </div>
+
       <div class="col-33">
         <label>Religião:</label>
-        <input type="text">
+        <input type="text" name="ds_religiao">
       </div>
+
       <div class="col-33">
         <label>Escolaridade:</label>
-        <input type="text">
+        <input type="text" name="ds_escolaridade">
       </div>
+
       <div class="col-50">
         <label>Telefone:</label>
-        <input type="tel">
+        <input type="tel" name="nr_telefone">
       </div>
+
       <div class="col-50">
         <label>E-mail:</label>
-        <input type="email">
+        <input type="email" name="ds_email">
       </div>
-    </div>
 
-    <h3>Identificação dos Pais</h3>
-    <div class="field-group">
+  </div>
+
+  <!-- IDENTIFICAÇÃO DOS PAIS -->
+  <h3>Identificação dos Pais</h3>
+  <div class="field-group">
+
       <div class="col-50">
         <label>Nome do pai:</label>
-        <input type="text">
+        <input type="text" name="ds_nomePai">
       </div>
+
       <div class="col-50">
-        <label>Profissão:</label>
-        <input type="text">
+        <label>Profissão do pai:</label>
+        <input type="text" name="ds_profissaoPai">
       </div>
+
       <div class="col-50">
         <label>Nome da mãe:</label>
-        <input type="text">
+        <input type="text" name="ds_nomeMae">
       </div>
-      <div class="col-50">
-        <label>Profissão:</label>
-        <input type="text">
-      </div>
-      <div class="col-100">
-        <label>Endereço:</label>
-        <input type="text">
-      </div>
-    </div>
 
-    <h3>Queixa Principal</h3>
-    <div class="field-group">
+      <div class="col-50">
+        <label>Profissão da mãe:</label>
+        <input type="text" name="ds_profissaoMae">
+      </div>
+
+      <div class="col-100">
+        <label>Endereço dos pais:</label>
+        <input type="text" name="ds_enderecoPais">
+      </div>
+
+  </div>
+
+  <!-- QUEIXA PRINCIPAL -->
+  <h3>Queixa Principal</h3>
+  <div class="field-group">
       <div class="col-100">
         <label>Centro da queixa:</label>
-        <textarea></textarea>
+        <textarea name="ds_centroQueixa"></textarea>
       </div>
-    </div>
+  </div>
 
-    <h3>Evolução da Queixa</h3>
-    <div class="field-group">
+  <!-- EVOLUÇÃO -->
+  <h3>Evolução da Queixa</h3>
+  <div class="field-group">
+
       <div class="col-100">
         <label>Foi repentina ou gradual?</label>
-        <textarea></textarea>
+        <textarea name="ds_evolucao"></textarea>
       </div>
+
       <div class="col-100">
         <label>Sintomas:</label>
-        <textarea></textarea>
+        <textarea name="ds_sintomas"></textarea>
       </div>
-    </div>
+
   </div>
+
+  <br>
+  <button id="btnSalvar">Salvar</button>
+
+  </div>
+  
 <script>
     const menuBtn = document.getElementById('menu-btn');
     const sidebar = document.getElementById('sidebar');
@@ -285,6 +336,51 @@
       sidebar.classList.toggle('show');
       content.classList.toggle('collapsed');
     });
+    
+    //Botão salvar
+    document.getElementById("btnSalvar").onclick = function () {
+
+    function get(name) {
+        return document.querySelector(`[name="${name}"]`).value;
+    }
+
+    const paciente = {
+        ds_nome: get("ds_nome"),
+        dt_nascimento: get("dt_nascimento"),
+        tp_sexo: get("tp_sexo"),
+        nr_idade: get("nr_idade"),
+        ds_endereco: get("ds_endereco"),
+        ds_religiao: get("ds_religiao"),
+        ds_escolaridade: get("ds_escolaridade"),
+        nr_telefone: get("nr_telefone"),
+        ds_email: get("ds_email"),
+
+        ds_nomePai: get("ds_nomePai"),
+        ds_profissaoPai: get("ds_profissaoPai"),
+        ds_nomeMae: get("ds_nomeMae"),
+        ds_profissaoMae: get("ds_profissaoMae"),
+        ds_enderecoPais: get("ds_enderecoPais"),
+
+        ds_centroQueixa: get("ds_centroQueixa"),
+        ds_evolucao: get("ds_evolucao"),
+        ds_sintomas: get("ds_sintomas")
+    };
+
+    fetch("http://localhost:8080/pacientes/criar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paciente)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Paciente cadastrado com sucesso!");
+        console.log("API retornou:", data);
+    })
+    .catch(err => {
+        alert("Erro ao salvar!");
+        console.error(err);
+    });
+};
 </script>
 </body>
 </html>
