@@ -192,6 +192,70 @@
 	#btnSalvar:active {
 	  transform: scale(0.98);
 	}
+
+     /* Estilos do switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 24px;
+  }
+
+  /* Esconde o checkbox padrão */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  /* Estilo do trilho do botão */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+  }
+
+  /* O círculo do switch */
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  /* Quando estiver ligado */
+  input:checked + .slider {
+    background-color: #7d6bb3;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+
+  /* Texto do rótulo */
+  .label-text {
+    font-size: 16px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  /* Estilo do bloco de pais */
+  #identificacaoPais {
+    display: none;
+    margin-top: 20px;
+  }
+
     
     
   </style>
@@ -265,36 +329,39 @@
 
   </div>
 
-  <!-- IDENTIFICAÇÃO DOS PAIS -->
+<!-- Botão tipo switch -->
+<label class="switch">
+  <input type="checkbox" id="menorDeIdade">
+  <span class="slider"></span>
+</label>
+<span class="label-text">Menor de idade</span>
+
+<!-- Bloco condicional -->
+<div id="identificacaoPais">
   <h3>Identificação dos Pais</h3>
   <div class="field-group">
-
-      <div class="col-50">
-        <label>Nome do pai:</label>
-        <input type="text" name="ds_nomePai">
-      </div>
-
-      <div class="col-50">
-        <label>Profissão do pai:</label>
-        <input type="text" name="ds_profissaoPai">
-      </div>
-
-      <div class="col-50">
-        <label>Nome da mãe:</label>
-        <input type="text" name="ds_nomeMae">
-      </div>
-
-      <div class="col-50">
-        <label>Profissão da mãe:</label>
-        <input type="text" name="ds_profissaoMae">
-      </div>
-
-      <div class="col-100">
-        <label>Endereço dos pais:</label>
-        <input type="text" name="ds_enderecoPais">
-      </div>
-
+    <div class="col-50">
+      <label>Nome do pai:</label>
+      <input type="text">
+    </div>
+    <div class="col-50">
+      <label>Profissão:</label>
+      <input type="text">
+    </div>
+    <div class="col-50">
+      <label>Nome da mãe:</label>
+      <input type="text">
+    </div>
+    <div class="col-50">
+      <label>Profissão:</label>
+      <input type="text">
+    </div>
+    <div class="col-100">
+      <label>Endereço:</label>
+      <input type="text">
+    </div>
   </div>
+</div>
 
   <!-- QUEIXA PRINCIPAL -->
   <h3>Queixa Principal</h3>
@@ -381,6 +448,13 @@
         console.error(err);
     });
 };
+
+  const toggle = document.getElementById('menorDeIdade');
+  const bloco = document.getElementById('identificacaoPais');
+
+  toggle.addEventListener('change', function() {
+    bloco.style.display = this.checked ? 'block' : 'none';
+  });
 </script>
 </body>
 </html>
