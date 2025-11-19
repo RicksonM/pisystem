@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Agenda Pádua - Frontend</title>
+<title>Agenda - Frontend</title>
 <style>
   :root{
     --bg:#f6f8fb;
@@ -128,7 +128,7 @@
   <div class="left">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <strong>Buscar Participante:</strong>
-      <input id="searchParticipant" placeholder="Pesquisar..." style="padding:6px;border-radius:6px;border:1px solid #e6e9ef" />
+      <input id="searchParticipant" placeholder="Pesquisar..." style="width:130px;padding:6px;border-radius:6px;border:1px solid #e6e9ef" />
     </div>
 
     <div class="month">
@@ -152,7 +152,7 @@
 
   <div class="right">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 id="formTitle">Agenda Pádua          <span id="selectedDateHuman">—</span></h2>
+      <h2 id="formTitle">Agenda          <span id="selectedDateHuman">—</span></h2>
       <div>
         <button class="secondary" id="btnPrev">◀</button>
         <button class="secondary" id="btnNext">▶</button>
@@ -161,42 +161,41 @@
 
     <div style="margin-top:8px;">
       <div class="field">
-       <!-- <label>Início</label>
+        <label>Início</label>
         <input type="date" id="dtInicio" />
-        <label style="width:70px; text-align:right;">Término</label>
-        <input type="date" id="dtFim" />-->
+        <label style="display:none;width:70px; text-align:right;">Término</label>
+        <input style="display:none;" type="date" id="dtFim" />
       </div>
 
       <div class="field">
         <label>Tipo de evento</label>
-        <select id="tp_evento">
-          <option value="ACOMPANHAMENTO">ACOMPANHAMENTO</option>
-          <option value="REUNIAO">REUNIÃO</option>
-          <option value="CONSULTA">CONSULTA</option>
-        </select>
+        <input type="text" id="tp_evento" />       
       </div>
 
-      <div class="field">
+      <div style="display: none;" class="field">
         <label>Responsável</label>
-        <select id="responsibleSelect"><option>Carregando...</option></select>
+        <select type="hidden" id="responsibleSelect"><option>Carregando...</option></select>
       </div>
 
       <div class="field">
-        <label>Local</label>
+        <label>Horario</label>
         <select id="locationSelect">
-          <option value="Sala - 1">Sala - 1</option>
-          <option value="Sala - 2">Sala - 2</option>
-          <option value="Online">Online</option>
+            <option value="08:00 às 09:00">08:00 às 09:00</option>
+            <option value="09:00 às 10:00">09:00 às 10:00</option>
+            <option value="10:00 às 11:00">10:00 às 11:00</option>
+            <option value="11:00 às 12:00">11:00 às 12:00</option>
+            <option value="14:00 às 15:00">14:00 às 15:00</option>
+            <option value="15:00 às 16:00">15:00 às 16:00</option>
         </select>
       </div>
 
       <div class="field" style="align-items:flex-start;">
-        <label>Participantes</label>
-        <textarea id="descricao" placeholder="Nome (telefone)"></textarea>
+        <label>Observação</label>
+        <textarea id="descricao" placeholder="Detalhes..."></textarea>
       </div>
 
       <div class="field">
-        <label>Receber aviso</label>
+        <label>Primeiro Atendimento</label>
         <input type="checkbox" id="receiveNotice" />
       </div>
 
@@ -438,22 +437,26 @@ async function markDaysWithEvents(year, month) {
 // --------- seleção de data ----------
 async function selectDate(dateObj){
   currentDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+
   document.getElementById('selectedDateHuman').textContent = humanDate(currentDate);
-  // set time defaults
-  const hh = new Date().getHours();
-  document.getElementById('dtInicio').value = '09:00';
-  document.getElementById('dtFim').value = '09:30';
+
+  // seta a data no input
+  document.getElementById('dtInicio').value = yyyy_mm_dd(currentDate);
+
+  document.getElementById('dtFim').value = yyyy_mm_dd(currentDate);
   // refresh calendar highlight
   document.querySelectorAll('.day').forEach(d=>{
     if(d.dataset.date === yyyy_mm_dd(currentDate)) d.classList.add('selected');
     else d.classList.remove('selected');
   });
+
   // load events for day
   await loadEventsForDate(currentDate);
-  renderEventsList();
-  clearForm();
-}
 
+  renderEventsList();
+
+  //clearForm(); // se seu clearForm() limpa o dtInicio, me avise e ajusto
+}
 // --------- carregar eventos do dia ----------
 async function loadEventsForDate(dateObj){
   const dateStr = yyyy_mm_dd(dateObj);
