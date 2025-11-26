@@ -431,7 +431,7 @@
         ds_sintomas: get("ds_sintomas")
     };
 
-    fetch("http://localhost:8080/pacientes/criar", {
+    fetch("https://pisystem-production.up.railway.app/pacientes/criar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paciente)
